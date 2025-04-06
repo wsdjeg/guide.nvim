@@ -13,12 +13,8 @@ local util = require('guide.util')
 local Key = require('spacevim.api').import('vim.keys')
 
 local cmp = require('spacevim.api').import('vim.compatible')
-local buffer = require('spacevim.api').import('vim.buffer')
-local VIM = require('spacevim.api').import('vim')
 local SL = require('spacevim.api').import('vim.statusline')
 local hl = require('spacevim.api.vim.highlight')
-local vopt = require('spacevim.api.vim.option')
-
 
 -- all local values should be listed here:
 
@@ -555,7 +551,7 @@ end
 local function winopen()
   highlight_cursor()
   if not vim.api.nvim_buf_is_valid(bufnr) then
-    bufnr = buffer.create_buf(false, true)
+    bufnr = vim.api.nvim_create_buf(false, true)
   end
   local opt = {
     relative = 'editor',
@@ -726,7 +722,7 @@ wait_for_input = function()
   if vim.fn.has('nvim-0.10.0') == 1 then
     vim.fn.timer_start(10, show_win)
   end
-  local inp = VIM.getchar()
+  local inp = util.getchar()
   log.debug('inp is:' .. inp)
   if inp == t('<Esc>') then
     prefix_key_inp = {}
