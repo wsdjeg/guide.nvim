@@ -8,7 +8,8 @@
 
 local M = {}
 
-local log = require('spacevim.logger').derive('guide')
+local log = require('guide.logger')
+local util = require('guide.util')
 local Key = require('spacevim.api').import('vim.keys')
 
 local cmp = require('spacevim.api').import('vim.compatible')
@@ -568,7 +569,7 @@ local function winopen()
   end
   winid = vim.api.nvim_open_win(bufnr, false, opt)
   guide_help_mode = false
-  vopt.setlocalopt(bufnr, winid, {
+  util.setlocalopt(bufnr, winid, {
     winhighlight = 'Normal:Pmenu,Search:',
     filetype = 'leaderGuide',
     number = false,
