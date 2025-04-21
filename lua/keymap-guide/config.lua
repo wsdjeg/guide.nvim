@@ -1,5 +1,6 @@
 local default_conf = {
     theme = 'whichkey',
+    hspace = 1,
 }
 
 return {

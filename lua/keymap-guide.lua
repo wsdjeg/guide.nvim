@@ -871,7 +871,7 @@ function M.getName(key)
 end
 
 function M.setup(opt)
-    config = require('guide.config').setup(opt)
+    config = require('keymap-guide.config').setup(opt)
 end
 
 return M
