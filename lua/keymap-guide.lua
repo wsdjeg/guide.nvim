@@ -869,6 +869,10 @@ function M.getName(key)
     end
 end
 
+function M.add(keymaps)
+    
+end
+
 function M.setup(opt)
     config = require('keymap-guide.config').setup(opt)
 end
