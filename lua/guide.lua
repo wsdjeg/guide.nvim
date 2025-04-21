@@ -10,11 +10,6 @@ local M = {}
 
 local log = require('guide.logger')
 local util = require('guide.util')
-local Key = require('spacevim.api').import('vim.keys')
-
-local cmp = require('spacevim.api').import('vim.compatible')
-local SL = require('spacevim.api').import('vim.statusline')
-local hl = require('spacevim.api.vim.highlight')
 
 -- all local values should be listed here:
 
@@ -103,7 +98,7 @@ local function create_target_dict(key)
   local tardict = {}
   local mapdict = {}
   if desc_lookup['top'] ~= nil then
-    topdict = cmp.fn.deepcopy(vim.api.nvim_eval(desc_lookup['top']))
+    topdict = vim.fn.deepcopy(vim.api.nvim_eval(desc_lookup['top']))
     if toplevel then
       tardict = topdict
     else
@@ -112,7 +107,7 @@ local function create_target_dict(key)
     mapdict = cached_dicts[key]
     merge(tardict, mapdict)
   elseif desc_lookup[key] ~= nil then
-    tardict = cmp.fn.deepcopy(vim.api.nvim_eval(desc_lookup[key]))
+    tardict = vim.fn.deepcopy(vim.api.nvim_eval(desc_lookup[key]))
     mapdict = cached_dicts[key]
   else
     tardict = cached_dicts[key]
@@ -166,27 +161,27 @@ local function add_map_to_dict(map, level, dict)
     local nlevel = level + 1
     if not dict[curkey] then
       dict[curkey] = { name = vim.g.leaderGuide_default_group_name }
-    elseif cmp.islist(dict[curkey]) and vim.g.leaderGuide_flatten == 1 then
+    elseif vim.islist(dict[curkey]) and vim.g.leaderGuide_flatten == 1 then
       local cmd = escape_mappings(map)
       curkey = table.concat(map.lhs, '', level)
       nlevel = level
       if not dict[curkey] then
         dict[curkey] = { cmd, map.display }
       end
-    elseif cmp.islist(dict[curkey]) and vim.g.leaderGuide_flatten == 0 then
+    elseif vim.islist(dict[curkey]) and vim.g.leaderGuide_flatten == 0 then
       curkey = curkey .. 'm'
       if not dict[curkey] then
         dict[curkey] = { name = vim.g.leaderGuide_default_group_name }
       end
     end
-    if not cmp.islist(dict[curkey]) then
+    if not vim.islist(dict[curkey]) then
       add_map_to_dict(map, nlevel, dict[curkey])
     end
   else
     local cmd = escape_mappings(map)
     if not dict[map.lhs[level]] then
       dict[map.lhs[level]] = { cmd, map.display }
-    elseif not cmp.islist(dict[map.lhs[level]]) and vim.g.leaderGuide_flatten == 1 then
+    elseif not vim.islist(dict[map.lhs[level]]) and vim.g.leaderGuide_flatten == 1 then
       local childmap = flattenmap(dict[map.lhs[level]], map.lhs[level])
       for it, _ in pairs(childmap) do
         dict[it] = childmap[it]
@@ -243,7 +238,7 @@ local function start_parser(key, dict)
     key = '<Space>'
   end
 
-  local readmap = cmp.execute('map ' .. key, 'silent')
+  local readmap = vim.execute('map ' .. key, 'silent')
   local visual = false
   if vis == 'gv' then
     visual = true
@@ -251,11 +246,11 @@ local function start_parser(key, dict)
     visual = false
   end
 
-  for _, line in ipairs(cmp.fn.split(readmap, '\n')) do
+  for _, line in ipairs(vim.fn.split(readmap, '\n')) do
     local name = vim.fn.split(string.sub(line, 4, #line))[1]
     log.debug('name is:' .. name)
     log.debug('line is:' .. line)
-    local mapd = cmp.fn.maparg(name, string.sub(line, 1, 1), 0, 1)
+    local mapd = vim.fn.maparg(name, string.sub(line, 1, 1), 0, 1)
     if mapd.lhs == '\\' then
       mapd.feedkeyargs = ''
     elseif mapd.noremap == 1 then
@@ -267,10 +262,10 @@ local function start_parser(key, dict)
       goto continue
     end
     mapd.display = format_displaystring(mapd.rhs)
-    mapd.lhs = cmp.fn.substitute(mapd.lhs, key, '', '')
-    mapd.lhs = cmp.fn.substitute(mapd.lhs, '<Space>', ' ', 'g')
-    mapd.lhs = cmp.fn.substitute(mapd.lhs, '<Tab>', '<C-I>', 'g')
-    mapd.rhs = cmp.fn.substitute(mapd.rhs, '<SID>', '<SNR>' .. (mapd['sid'] or '') .. '_', 'g')
+    mapd.lhs = vim.fn.substitute(mapd.lhs, key, '', '')
+    mapd.lhs = vim.fn.substitute(mapd.lhs, '<Space>', ' ', 'g')
+    mapd.lhs = vim.fn.substitute(mapd.lhs, '<Tab>', '<C-I>', 'g')
+    mapd.rhs = vim.fn.substitute(mapd.rhs, '<SID>', '<SNR>' .. (mapd['sid'] or '') .. '_', 'g')
     if mapd.lhs ~= '' and mapd.display ~= 'LeaderGuide.*' then
       mapd.lhs = string_to_keys(mapd.lhs)
       if
@@ -352,7 +347,7 @@ local function get_key_number(key)
   elseif key == '<Tab>' then
     return 9
   else
-    return cmp.fn.char2nr(key)
+    return vim.fn.char2nr(key)
   end
 end
 
@@ -380,9 +375,9 @@ local function compare_key(i1, i2)
       return true
     end
   elseif a >= 97 and a <= 122 and b >= 65 and b <= 90 then
-    return compare_key(cmp.fn.nr2char(a), cmp.fn.nr2char(b + 32))
+    return compare_key(vim.fn.nr2char(a), vim.fn.nr2char(b + 32))
   elseif a >= 65 and a <= 90 and b >= 97 and b <= 122 then
-    return compare_key(cmp.fn.nr2char(a), cmp.fn.nr2char(b - 32))
+    return compare_key(vim.fn.nr2char(a), vim.fn.nr2char(b - 32))
   end
   if a == b then
     return false
@@ -469,14 +464,14 @@ end
 
 local cursor_highlight_info
 local function highlight_cursor()
-  cursor_highlight_info = hl.group2dict('Cursor')
+  cursor_highlight_info = util.group2dict('Cursor')
   local hlinfo = {
     name = 'SpaceVimGuideCursor',
     guibg = cursor_highlight_info.guibg,
     ctermbg = cursor_highlight_info.ctermbg,
   }
-  hl.hi(hlinfo)
-  hl.hide_in_normal('Cursor')
+  util.hi(hlinfo)
+  util.hide_in_normal('Cursor')
   if vis == 'gv' then
     local _begin = vim.fn.getpos("'<")
     local _end = vim.fn.getpos("'>")
@@ -500,7 +495,7 @@ local function highlight_cursor()
 end
 
 local function remove_cursor_highlight()
-  hl.hi(cursor_highlight_info)
+  util.hi(cursor_highlight_info)
   pcall(vim.fn.matchdelete, cursor_hilight_id)
 end
 
@@ -535,7 +530,7 @@ local function updateStatusline()
     ['nil'] = '',
   }
   local sep = separators[vim.g.spacevim_statusline_separator] or separators.arrow
-  SL.open_float({
+  util.open_float({
     { 'Guide: ', 'LeaderGuiderPrompt' },
     { sep .. ' ', 'LeaderGuiderSep1' },
     {
@@ -592,9 +587,9 @@ local function start_buffer()
   local layout = calc_layout()
   local text = create_string(layout)
   if vim.g.leaderGuide_max_size then
-    layout.win_dim = cmp.fn.min({ vim.g.leaderGuide_max_size, layout.win_dim })
+    layout.win_dim = vim.fn.min({ vim.g.leaderGuide_max_size, layout.win_dim })
   end
-  cmp.fn.setbufvar(bufnr, '&modifiable', 1)
+  vim.fn.setbufvar(bufnr, '&modifiable', 1)
   -- always in neovim >= 0.9.0
   vim.api.nvim_win_set_config(winid, {
     relative = 'editor',
@@ -608,7 +603,7 @@ local function start_buffer()
 
   updateStatusline()
 
-  cmp.fn.setbufvar(bufnr, '&modifiable', 0)
+  vim.fn.setbufvar(bufnr, '&modifiable', 0)
 
   vim.cmd('redraw')
 
@@ -616,7 +611,7 @@ local function start_buffer()
 end
 
 local function close_float_statusline()
-  SL.close_float()
+  util.close_float()
 end
 local function winclose()
   vim.api.nvim_win_close(winid, true)
@@ -625,14 +620,14 @@ local function winclose()
 end
 
 local function handle_input(input)
-  if not cmp.islist(input) then
+  if not vim.islist(input) then
     lmap = input
     start_buffer()
   else
     winclose()
     vim.cmd('doautocmd WinEnter,BufEnter')
     prefix_key_inp = {}
-    cmp.fn.feedkeys(vis .. reg .. count, 'ti')
+    vim.fn.feedkeys(vis .. reg .. count, 'ti')
 
     --- redraw!
 
@@ -713,12 +708,12 @@ local function show_win(_)
   if vim.api.nvim_win_is_valid(winid) then
     vim.api.nvim_win_set_config(winid, { hide = false })
   end
-  SL.show()
+  util.show()
 end
 
 wait_for_input = function()
   log.debug('wait for input:')
-  local t = Key.t
+  local t = util.t
   if vim.fn.has('nvim-0.10.0') == 1 then
     vim.fn.timer_start(10, show_win)
   end
@@ -742,7 +737,7 @@ wait_for_input = function()
     if inp == ' ' then
       inp = '[SPC]'
     else
-      inp = Key.char2name(inp)
+      inp = util.char2name(inp)
     end
     local fsel = lmap[inp] or ''
     if vim.fn.empty(fsel) == 0 then
