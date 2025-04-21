@@ -1,6 +1,7 @@
 local default_conf = {
     theme = 'whichkey',
     hspace = 1,
+    separator = 'arrow',
 }
 
 return {

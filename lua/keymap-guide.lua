@@ -515,7 +515,6 @@ local function guide_help_msg(escape)
 end
 
 local function updateStatusline()
-    vim.fn['SpaceVim#mapping#guide#theme#hi']()
     local gname = guide_group.name or ''
     if #gname > 0 then
         gname = ' - ' .. string.sub(gname, 2)
@@ -530,7 +529,7 @@ local function updateStatusline()
         fire = '',
         ['nil'] = '',
     }
-    local sep = separators[vim.g.spacevim_statusline_separator] or separators.arrow
+    local sep = separators[config.separator] or separators.arrow
     util.open_float({
         { 'Guide: ', 'LeaderGuiderPrompt' },
         { sep .. ' ', 'LeaderGuiderSep1' },
