@@ -8,8 +8,8 @@
 
 local M = {}
 
-local log = require('guide.logger')
-local util = require('guide.util')
+local log = require('keymap-guide.logger')
+local util = require('keymap-guide.util')
 local config
 
 -- all local values should be listed here:
