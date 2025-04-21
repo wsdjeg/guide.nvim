@@ -860,7 +860,7 @@ function M.getName(key)
         return '[g]'
     elseif key == 'z' then
         return '[z]'
-    elseif key == vim.g.spacevim_windows_leader then
+    elseif key == config.windows_leader then
         return '[WIN]'
     elseif key == '\\' then
         return '<leader>'
