@@ -1,5 +1,8 @@
 local default_conf = {
     theme = 'whichkey',
+    hspace = 1,
+    separator = 'arrow',
+    windows_leader = 's',
 }
 
 return {
